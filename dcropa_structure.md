@@ -2,7 +2,7 @@
 
 ## Overview
 
-DCROPA is a PHP and SQL-based application designed to manage and monitor
+DCROP is a PHP and SQL-based application designed to manage and monitor
 student participation in the TTFFP program at UDS. The system validates
 student attendance through location checks and manages user roles with
 varying privilege levels.
