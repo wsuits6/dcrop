@@ -33,13 +33,16 @@ class CoordinatorController {
         $coordinator = $this->coordinatorModel->authenticate($email, $password);
         
         if($coordinator) {
-            // Check email verification
+            // TEMPORARILY DISABLED EMAIL VERIFICATION CHECK
+            // Uncomment when email system is implemented
+            /*
             if($coordinator['email_verified'] == 0) {
                 return [
                     'success' => false,
                     'message' => 'Please verify your email before logging in'
                 ];
             }
+            */
             
             // Log activity
             $this->logActivity($coordinator['id'], 'login');
