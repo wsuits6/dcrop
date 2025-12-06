@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordinator Reports - DCROP</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-content">
+                <h1>📄 My Reports</h1>
+                <p>Create and manage your reports</p>
+            </div>
+            <button class="btn btn-outline" onclick="goBack()">← Back to Dashboard</button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="page-content">
+            <!-- Coordinator Info Card -->
+            <div class="coordinator-info-card">
+                <div class="coordinator-details">
+                    <h3 id="coordinatorName">Loading...</h3>
+                    <p><strong>Email:</strong> <span id="coordinatorEmail">-</span></p>
+                    <p><strong>Community:</strong> <span id="coordinatorCommunity">-</span></p>
+                </div>
+                <div class="report-stats">
+                    <div class="stat-box">
+                        <span class="stat-number" id="totalReports">0</span>
+                        <span class="stat-label">Total Reports</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number" id="thisMonthReports">0</span>
+                        <span class="stat-label">This Month</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="report-actions">
+                <button class="btn btn-primary" id="createReportBtn">
+                    ➕ Create New Report
+                </button>
+                <button class="btn btn-outline" id="refreshBtn">
+                    🔄 Refresh
+                </button>
+            </div>
+
+            <!-- Create Report Form (Hidden by default) -->
+            <div id="createReportForm" class="report-form-card hidden">
+                <div class="form-header">
+                    <h3>📝 Create New Report</h3>
+                    <button class="btn-close" id="closeFormBtn">✕</button>
+                </div>
+
+                <form id="reportForm">
+                    <!-- Report Type -->
+                    <div class="form-group">
+                        <label for="reportType">Report Type: <span class="required">*</span></label>
+                        <select id="reportType" name="report_type" required>
+                            <option value="">-- Select Report Type --</option>
+                            <option value="daily">📅 Daily Report</option>
+                            <option value="weekly">📊 Weekly Report</option>
+                            <option value="monthly">📈 Monthly Report</option>
+                            <option value="incident">⚠️ Incident Report</option>
+                        </select>
+                        <small class="form-hint">Choose the type of report you want to create</small>
+                    </div>
+
+                    <!-- Report Date -->
+                    <div class="form-group">
+                        <label for="reportDate">Report Date: <span class="required">*</span></label>
+                        <input 
+                            type="date" 
+                            id="reportDate" 
+                            name="report_date" 
+                            required
+                        >
+                        <small class="form-hint">Date this report covers</small>
+                    </div>
+
+                    <!-- Report Title (Optional) -->
+                    <div class="form-group">
+                        <label for="reportTitle">Report Title: (Optional)</label>
+                        <input 
+                            type="text" 
+                            id="reportTitle" 
+                            placeholder="e.g., Weekly Summary - Week 1"
+                            maxlength="150"
+                        >
+                    </div>
+
+                    <!-- Report Content -->
+                    <div class="form-group">
+                        <label for="reportContent">Report Content: <span class="required">*</span></label>
+                        <textarea 
+                            id="reportContent" 
+                            name="content" 
+                            rows="10" 
+                            required 
+                            placeholder="Enter your detailed report here..."
+                        ></textarea>
+                        <small class="form-hint">
+                            Include attendance summary, issues encountered, student performance, etc.
+                        </small>
+                    </div>
+
+                    <!-- Report Template Suggestions -->
+                    <div class="template-suggestions">
+                        <h4>💡 Template Suggestions:</h4>
+                        <div class="template-buttons">
+                            <button type="button" class="btn-template" onclick="useTemplate('daily')">
+                                Use Daily Template
+                            </button>
+                            <button type="button" class="btn-template" onclick="useTemplate('weekly')">
+                                Use Weekly Template
+                            </button>
+                            <button type="button" class="btn-template" onclick="useTemplate('incident')">
+                                Use Incident Template
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-text">📤 Submit Report</span>
+                            <span class="btn-loader hidden">Submitting...</span>
+                        </button>
+                        <button type="button" class="btn btn-outline" id="cancelReportBtn">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Reports List Section -->
+            <div class="reports-list-section">
+                <div class="section-header-row">
+                    <h3>📋 My Reports</h3>
+                    <div class="filter-controls">
+                        <select id="filterType" class="filter-input">
+                            <option value="">All Types</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="incident">Incident</option>
+                        </select>
+                        <button class="btn btn-secondary btn-sm" id="filterBtn">
+                            Filter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reports Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date Created</th>
+                                <th>Report Type</th>
+                                <th>Content Preview</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportsTable">
+                            <tr>
+                                <td colspan="5" class="text-center loading">
+                                    <div class="loader"></div>
+                                    Loading reports...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state hidden">
+                    <div class="empty-icon">📄</div>
+                    <h3>No Reports Yet</h3>
+                    <p>You haven't created any reports yet. Click "Create New Report" to get started.</p>
+                </div>
+            </div>
+
+            <!-- Report Details Modal (Hidden by default) -->
+            <div id="reportModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>📄 Report Details</h3>
+                        <button class="btn-close" onclick="closeModal()">✕</button>
+                    </div>
+                    <div class="modal-body" id="modalBody">
+                        <!-- Report details will be inserted here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline" onclick="closeModal()">Close</button>
+                        <button class="btn btn-primary" onclick="printReport()">🖨️ Print</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let coordinatorData = null;
+        let allReports = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            const user = JSON.parse(localStorage.getItem('user'));
+            const role = localStorage.getItem('userRole');
+
+            if (!user || role !== 'coordinator') {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            coordinatorData = user;
+            loadCoordinatorInfo();
+            loadReports();
+
+            // Set today's date as default
+            document.getElementById('reportDate').valueAsDate = new Date();
+
+            // Event listeners
+            document.getElementById('createReportBtn').addEventListener('click', showReportForm);
+            document.getElementById('closeFormBtn').addEventListener('click', hideReportForm);
+            document.getElementById('cancelReportBtn').addEventListener('click', hideReportForm);
+            document.getElementById('reportForm').addEventListener('submit', submitReport);
+            document.getElementById('refreshBtn').addEventListener('click', loadReports);
+            document.getElementById('filterBtn').addEventListener('click', filterReports);
+        });
+
+        // Load coordinator information
+        function loadCoordinatorInfo() {
+            document.getElementById('coordinatorName').textContent = coordinatorData.full_name;
+            document.getElementById('coordinatorEmail').textContent = coordinatorData.email;
+            document.getElementById('coordinatorCommunity').textContent = coordinatorData.assigned_community;
+        }
+
+        // Load reports
+        async function loadReports() {
+            try {
+                const response = await fetch(`http://localhost:8080/DCROP/backend/api/reports.php?action=coordinator_reports&coordinator_id=${coordinatorData.id}`);
+                const result = await response.json();
+
+                const tbody = document.getElementById('reportsTable');
+                const emptyState = document.getElementById('emptyState');
+
+                if (result.success && result.reports.length > 0) {
+                    allReports = result.reports;
+                    displayReports(allReports);
+                    
+                    // Update stats
+                    document.getElementById('totalReports').textContent = result.count;
+                    
+                    const thisMonth = allReports.filter(r => {
+                        const reportMonth = new Date(r.created_at).getMonth();
+                        const currentMonth = new Date().getMonth();
+                        return reportMonth === currentMonth;
+                    }).length;
+                    document.getElementById('thisMonthReports').textContent = thisMonth;
+
+                    emptyState.classList.add('hidden');
+                } else {
+                    tbody.innerHTML = '';
+                    emptyState.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                showError('Failed to load reports');
+            }
+        }
+
+        // Display reports in table
+        function displayReports(reports) {
+            const tbody = document.getElementById('reportsTable');
+            
+            tbody.innerHTML = reports.map((report, index) => {
+                const date = new Date(report.created_at).toLocaleDateString();
+                const preview = report.content.substring(0, 100) + (report.content.length > 100 ? '...' : '');
+                const typeIcon = getReportIcon(report.report_type);
+                
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${date}</td>
+                        <td><span class="report-type-badge type-${report.report_type}">${typeIcon} ${report.report_type}</span></td>
+                        <td class="preview-cell">${preview}</td>
+                        <td class="actions-cell">
+                            <button class="btn-icon" onclick="viewReport(${report.id})" title="View Details">
+                                👁️
+                            </button>
+                            <button class="btn-icon btn-danger" onclick="deleteReport(${report.id})" title="Delete">
+                                🗑️
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Get report icon
+        function getReportIcon(type) {
+            const icons = {
+                'daily': '📅',
+                'weekly': '📊',
+                'monthly': '📈',
+                'incident': '⚠️'
+            };
+            return icons[type] || '📄';
+        }
+
+        // Show report form
+        function showReportForm() {
+            document.getElementById('createReportForm').classList.remove('hidden');
+            document.getElementById('reportContent').focus();
+        }
+
+        // Hide report form
+        function hideReportForm() {
+            document.getElementById('createReportForm').classList.add('hidden');
+            document.getElementById('reportForm').reset();
+        }
+
+        // Use template
+        function useTemplate(type) {
+            const templates = {
+                'daily': `DAILY REPORT - ${new Date().toLocaleDateString()}
+
+Community: ${coordinatorData.assigned_community}
+
+1. ATTENDANCE SUMMARY
+   - Total Students: [Number]
+   - Present: [Number]
+   - Absent: [Number]
+   - Attendance Rate: [Percentage]
+
+2. ACTIVITIES COMPLETED
+   - [List activities]
+
+3. ISSUES/CHALLENGES
+   - [Describe any issues]
+
+4. RECOMMENDATIONS
+   - [Your recommendations]
+
+5. ADDITIONAL NOTES
+   - [Any other relevant information]`,
+
+                'weekly': `WEEKLY REPORT - Week of ${new Date().toLocaleDateString()}
+
+Community: ${coordinatorData.assigned_community}
+
+1. WEEKLY ATTENDANCE OVERVIEW
+   - Average Attendance Rate: [Percentage]
+   - Most Attended Day: [Day]
+   - Least Attended Day: [Day]
+
+2. STUDENT PERFORMANCE
+   - Outstanding Students: [List names]
+   - Students Needing Attention: [List names]
+
+3. ACTIVITIES & ACHIEVEMENTS
+   - [List weekly activities]
+
+4. CHALLENGES FACED
+   - [Describe challenges]
+
+5. ACTION PLAN FOR NEXT WEEK
+   - [List planned actions]`,
+
+                'incident': `INCIDENT REPORT - ${new Date().toLocaleDateString()}
+
+Community: ${coordinatorData.assigned_community}
+
+1. INCIDENT DETAILS
+   - Date & Time: [When it occurred]
+   - Location: [Where it occurred]
+   - Students Involved: [Names/Index numbers]
+
+2. DESCRIPTION
+   - [Detailed description of the incident]
+
+3. ACTIONS TAKEN
+   - [What was done immediately]
+
+4. CURRENT STATUS
+   - [Current situation]
+
+5. RECOMMENDATIONS
+   - [Suggested actions to prevent recurrence]
+
+6. FOLLOW-UP REQUIRED
+   - [Any follow-up needed]`
+            };
+
+            const selectedType = document.getElementById('reportType').value || type;
+            if (templates[selectedType]) {
+                document.getElementById('reportContent').value = templates[selectedType];
+            }
+        }
+
+        // Submit report
+        async function submitReport(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoader = submitBtn.querySelector('.btn-loader');
+
+            const formData = {
+                coordinator_id: coordinatorData.id,
+                report_type: document.getElementById('reportType').value,
+                content: document.getElementById('reportContent').value
+            };
+
+            // Show loading
+            submitBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoader.classList.remove('hidden');
+
+            try {
+                const response = await fetch('http://localhost:8080/DCROP/backend/api/reports.php?action=create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Report submitted successfully!');
+                    hideReportForm();
+                    loadReports();
+                } else {
+                    alert('Failed to submit report: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Submit report error:', error);
+                alert('Connection error. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+            }
+        }
+
+        // Filter reports
+        function filterReports() {
+            const filterType = document.getElementById('filterType').value;
+            
+            if (filterType) {
+                const filtered = allReports.filter(r => r.report_type === filterType);
+                displayReports(filtered);
+            } else {
+                displayReports(allReports);
+            }
+        }
+
+        // View report
+        function viewReport(reportId) {
+            const report = allReports.find(r => r.id == reportId);
+            if (!report) return;
+
+            const typeIcon = getReportIcon(report.report_type);
+            const modalBody = document.getElementById('modalBody');
+            
+            modalBody.innerHTML = `
+                <div class="report-details">
+                    <div class="detail-row">
+                        <strong>Report Type:</strong>
+                        <span class="report-type-badge type-${report.report_type}">${typeIcon} ${report.report_type}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Created:</strong>
+                        <span>${new Date(report.created_at).toLocaleString()}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>Community:</strong>
+                        <span>${coordinatorData.assigned_community}</span>
+                    </div>
+                    <hr>
+                    <div class="report-content">
+                        <h4>Report Content:</h4>
+                        <pre>${report.content}</pre>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('reportModal').classList.remove('hidden');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        // Print report
+        function printReport() {
+            window.print();
+        }
+
+        // Delete report
+        async function deleteReport(reportId) {
+            if (!confirm('Are you sure you want to delete this report? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/DCROP/backend/api/reports.php?action=delete&report_id=${reportId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Report deleted successfully');
+                    loadReports();
+                } else {
+                    alert('Failed to delete report');
+                }
+            } catch (error) {
+                console.error('Delete report error:', error);
+                alert('Connection error');
+            }
+        }
+
+        // Show error
+        function showError(message) {
+            const tbody = document.getElementById('reportsTable');
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger">${message}</td></tr>`;
+        }
+
+        // Go back
+        function goBack() {
+            window.location.href = '../dashboard/coordinator.html';
+        }
+    </script>
+</body>
+</html>
