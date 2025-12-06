@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance History - DCROP</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-content">
+                <h1>📅 Attendance History</h1>
+                <p>View your complete attendance records</p>
+            </div>
+            <button class="btn btn-outline" onclick="goBack()">← Back to Dashboard</button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="page-content">
+            <!-- Student Info & Stats Card -->
+            <div class="stats-summary">
+                <div class="student-info-card">
+                    <h3 id="studentName">Loading...</h3>
+                    <p><strong>Index:</strong> <span id="studentIndex">-</span></p>
+                    <p><strong>Community:</strong> <span id="studentCommunity">-</span></p>
+                </div>
+
+                <div class="stats-cards-row">
+                    <div class="stat-mini-card">
+                        <div class="stat-value" id="totalDays">0</div>
+                        <div class="stat-label">Total Days</div>
+                    </div>
+                    <div class="stat-mini-card stat-success">
+                        <div class="stat-value" id="presentDays">0</div>
+                        <div class="stat-label">Present</div>
+                    </div>
+                    <div class="stat-mini-card stat-danger">
+                        <div class="stat-value" id="absentDays">0</div>
+                        <div class="stat-label">Absent</div>
+                    </div>
+                    <div class="stat-mini-card stat-warning">
+                        <div class="stat-value" id="pendingDays">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-mini-card stat-info">
+                        <div class="stat-value" id="attendanceRate">0%</div>
+                        <div class="stat-label">Attendance Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <h3>🔍 Filter Records</h3>
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="filterMonth">Filter by Month:</label>
+                        <input 
+                            type="month" 
+                            id="filterMonth" 
+                            class="filter-input"
+                        >
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterStatus">Filter by Status:</label>
+                        <select id="filterStatus" class="filter-input">
+                            <option value="">All Statuses</option>
+                            <option value="present">Present</option>
+                            <option value="absent">Absent</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterVerified">Verification:</label>
+                        <select id="filterVerified" class="filter-input">
+                            <option value="">All</option>
+                            <option value="1">Verified</option>
+                            <option value="0">Unverified</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button class="btn btn-secondary" id="applyFilterBtn">
+                            Apply Filter
+                        </button>
+                        <button class="btn btn-outline" id="clearFilterBtn">
+                            Clear
+                        </button>
+                        <button class="btn btn-primary" id="exportBtn">
+                            📊 Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Table -->
+            <div class="table-section">
+                <div class="section-header-row">
+                    <h3>Attendance Records</h3>
+                    <div class="search-box">
+                        <input 
+                            type="text" 
+                            id="searchBox" 
+                            placeholder="Search by date..."
+                            class="search-input"
+                        >
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Day</th>
+                                <th>Status</th>
+                                <th>Verified</th>
+                                <th>Location</th>
+                                <th>Submitted At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable">
+                            <tr>
+                                <td colspan="8" class="text-center loading">
+                                    <div class="loader"></div>
+                                    Loading attendance history...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <button class="btn btn-outline btn-sm" id="prevBtn" disabled>
+                        ← Previous
+                    </button>
+                    <span class="pagination-info">
+                        Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                    </span>
+                    <button class="btn btn-outline btn-sm" id="nextBtn" disabled>
+                        Next →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Monthly Summary -->
+            <div class="monthly-summary">
+                <h3>📊 Monthly Summary</h3>
+                <div id="monthlySummaryContent">
+                    <p class="text-muted">Select a month to view summary</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions-footer">
+                <button class="btn btn-primary" onclick="window.location.href='submit.html'">
+                    ✓ Submit New Attendance
+                </button>
+                <button class="btn btn-outline" onclick="printHistory()">
+                    🖨️ Print History
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/attendance.js"></script>
+    <script>
+        let studentData = null;
+        let allAttendance = [];
+        let filteredAttendance = [];
+        let currentPage = 1;
+        const recordsPerPage = 15;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            const user = JSON.parse(localStorage.getItem('user'));
+            const role = localStorage.getItem('userRole');
+
+            if (!user || role !== 'student') {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            studentData = user;
+            loadStudentInfo();
+            loadAttendanceHistory();
+
+            // Event listeners
+            document.getElementById('applyFilterBtn').addEventListener('click', applyFilters);
+            document.getElementById('clearFilterBtn').addEventListener('click', clearFilters);
+            document.getElementById('searchBox').addEventListener('input', searchRecords);
+            document.getElementById('prevBtn').addEventListener('click', () => changePage(-1));
+            document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+        });
+
+        // Load student information
+        function loadStudentInfo() {
+            document.getElementById('studentName').textContent = studentData.full_name;
+            document.getElementById('studentIndex').textContent = studentData.index_number;
+            document.getElementById('studentCommunity').textContent = studentData.community;
+        }
+
+        // Load attendance history
+        async function loadAttendanceHistory() {
+            try {
+                const response = await fetch(`http://localhost:8080/DCROP/backend/api/attendance.php?action=history&student_id=${studentData.id}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    allAttendance = result.attendance || [];
+                    filteredAttendance = [...allAttendance];
+                    
+                    updateStatistics();
+                    displayRecords();
+                } else {
+                    showError('Failed to load attendance history');
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+                showError('Connection error. Please refresh the page.');
+            }
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const total = allAttendance.length;
+            const present = allAttendance.filter(a => a.status === 'present').length;
+            const absent = allAttendance.filter(a => a.status === 'absent').length;
+            const pending = allAttendance.filter(a => a.status === 'pending').length;
+            const rate = total > 0 ? ((present / total) * 100).toFixed(1) : 0;
+
+            document.getElementById('totalDays').textContent = total;
+            document.getElementById('presentDays').textContent = present;
+            document.getElementById('absentDays').textContent = absent;
+            document.getElementById('pendingDays').textContent = pending;
+            document.getElementById('attendanceRate').textContent = rate + '%';
+        }
+
+        // Display records with pagination
+        function displayRecords() {
+            const tbody = document.getElementById('historyTable');
+            const totalPages = Math.ceil(filteredAttendance.length / recordsPerPage);
+            const start = (currentPage - 1) * recordsPerPage;
+            const end = start + recordsPerPage;
+            const pageRecords = filteredAttendance.slice(start, end);
+
+            if (filteredAttendance.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center">No attendance records found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = pageRecords.map((record, index) => {
+                const rowNum = start + index + 1;
+                const date = new Date(record.date);
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                const statusClass = record.status;
+                const verifiedIcon = record.verified == 1 ? '✓' : '⏱️';
+                const verifiedText = record.verified == 1 ? 'Yes' : 'Pending';
+
+                return `
+                    <tr>
+                        <td>${rowNum}</td>
+                        <td>${record.date}</td>
+                        <td>${dayName}</td>
+                        <td><span class="status-badge status-${statusClass}">${record.status}</span></td>
+                        <td><span class="verified-badge ${record.verified == 1 ? 'verified' : 'pending'}">${verifiedIcon} ${verifiedText}</span></td>
+                        <td class="location-cell">
+                            ${record.latitude && record.longitude ? 
+                                `<small>${parseFloat(record.latitude).toFixed(4)}, ${parseFloat(record.longitude).toFixed(4)}</small>` : 
+                                'N/A'
+                            }
+                        </td>
+                        <td>${new Date(record.created_at).toLocaleString()}</td>
+                        <td>
+                            <button class="btn-icon" onclick="viewDetails(${record.id})" title="View Details">
+                                👁️
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Update pagination
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const monthFilter = document.getElementById('filterMonth').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const verifiedFilter = document.getElementById('filterVerified').value;
+
+            filteredAttendance = allAttendance.filter(record => {
+                let matches = true;
+
+                // Month filter
+                if (monthFilter) {
+                    const recordMonth = record.date.substring(0, 7); // YYYY-MM
+                    matches = matches && (recordMonth === monthFilter);
+                }
+
+                // Status filter
+                if (statusFilter) {
+                    matches = matches && (record.status === statusFilter);
+                }
+
+                // Verified filter
+                if (verifiedFilter) {
+                    matches = matches && (record.verified == verifiedFilter);
+                }
+
+                return matches;
+            });
+
+            currentPage = 1;
+            displayRecords();
+
+            // Show monthly summary if month selected
+            if (monthFilter) {
+                showMonthlySummary(monthFilter);
+            }
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('filterMonth').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterVerified').value = '';
+            document.getElementById('searchBox').value = '';
+            
+            filteredAttendance = [...allAttendance];
+            currentPage = 1;
+            displayRecords();
+
+            document.getElementById('monthlySummaryContent').innerHTML = '<p class="text-muted">Select a month to view summary</p>';
+        }
+
+        // Search records
+        function searchRecords(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            filteredAttendance = allAttendance.filter(record => {
+                return record.date.toLowerCase().includes(searchTerm) ||
+                       record.status.toLowerCase().includes(searchTerm);
+            });
+
+            currentPage = 1;
+            displayRecords();
+        }
+
+        // Change page
+        function changePage(direction) {
+            currentPage += direction;
+            displayRecords();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show monthly summary
+        function showMonthlySummary(month) {
+            const monthRecords = filteredAttendance;
+            const present = monthRecords.filter(a => a.status === 'present').length;
+            const absent = monthRecords.filter(a => a.status === 'absent').length;
+            const pending = monthRecords.filter(a => a.status === 'pending').length;
+            const total = monthRecords.length;
+            const rate = total > 0 ? ((present / total) * 100).toFixed(1) : 0;
+
+            const monthName = new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+            document.getElementById('monthlySummaryContent').innerHTML = `
+                <h4>${monthName}</h4>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="summary-label">Total Days:</span>
+                        <span class="summary-value">${total}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Present:</span>
+                        <span class="summary-value text-success">${present}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Absent:</span>
+                        <span class="summary-value text-danger">${absent}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Pending:</span>
+                        <span class="summary-value text-warning">${pending}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Attendance Rate:</span>
+                        <span class="summary-value text-primary">${rate}%</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // View details
+        function viewDetails(id) {
+            const record = allAttendance.find(a => a.id == id);
+            if (record) {
+                alert(`Attendance Details:\n\nDate: ${record.date}\nStatus: ${record.status}\nVerified: ${record.verified ? 'Yes' : 'No'}\nLocation: ${record.latitude}, ${record.longitude}\nSubmitted: ${new Date(record.created_at).toLocaleString()}`);
+            }
+        }
+
+        // Export data
+        function exportData() {
+            alert('Export functionality coming soon!\n\nYou will be able to export your attendance history as CSV or PDF.');
+        }
+
+        // Print history
+        function printHistory() {
+            window.print();
+        }
+
+        // Show error
+        function showError(message) {
+            const tbody = document.getElementById('historyTable');
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">${message}</td></tr>`;
+        }
+
+        // Go back function
+        function goBack() {
+            window.location.href = '../dashboard/student.html';
+        }
+    </script>
+</body>
+</html>
