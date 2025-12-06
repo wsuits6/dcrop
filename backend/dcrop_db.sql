@@ -98,7 +98,7 @@ CREATE TABLE reports (
     coordinator_id INT NOT NULL,
     report_type ENUM('daily', 'weekly', 'monthly', 'incident') NOT NULL,
     content TEXT NOT NULL,
-    created_at TIMEShttp://localhost:8080/DCROP/backend/index.php?endpoint=registerTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (coordinator_id) REFERENCES coordinators(id) ON DELETE CASCADE,
     INDEX idx_coordinator_id (coordinator_id),
@@ -120,6 +120,44 @@ CREATE TABLE activity_logs (
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insert default super user (password: Admin@123)
+
+-- ============================================
+-- INSERT TEST DATA
+-- ============================================
+
+-- Insert default super user
+-- Password: Admin@123
 INSERT INTO super_users (full_name, email, password) 
 VALUES ('System Admin', 'admin@dcrop.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+
+-- Insert test student
+-- Password: Student@123
+INSERT INTO students (full_name, index_number, email, password, community, email_verified) 
+VALUES (
+    'Test Student', 
+    'UDS/TEST/12345', 
+    'student@test.com', 
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+    'Tamale',
+    1
+);
+
+-- Insert test coordinator
+-- Password: Coordinator@123
+INSERT INTO coordinators (full_name, email, password, assigned_community, email_verified) 
+VALUES (
+    'Test Coordinator', 
+    'coordinator@test.com', 
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+    'Tamale',
+    1
+);
+
+-- Insert test admin
+-- Password: Admin@123
+INSERT INTO admins (full_name, email, password) 
+VALUES (
+    'Test Admin', 
+    'admin@test.com', 
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'
+);
