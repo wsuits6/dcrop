@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super User Dashboard - DCROP</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>DCROP</h2>
+                <p class="user-role">Super User Portal</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#overview" class="nav-item active" data-section="overview">
+                    <span class="nav-icon">📊</span>
+                    <span>Overview</span>
+                </a>
+                <a href="#admins" class="nav-item" data-section="admins">
+                    <span class="nav-icon">👑</span>
+                    <span>Manage Admins</span>
+                </a>
+                <a href="#students" class="nav-item" data-section="students">
+                    <span class="nav-icon">👥</span>
+                    <span>Students</span>
+                </a>
+                <a href="#coordinators" class="nav-item" data-section="coordinators">
+                    <span class="nav-icon">👨‍💼</span>
+                    <span>Coordinators</span>
+                </a>
+                <a href="#attendance" class="nav-item" data-section="attendance">
+                    <span class="nav-icon">✓</span>
+                    <span>Attendance</span>
+                </a>
+                <a href="#messages" class="nav-item" data-section="messages">
+                    <span class="nav-icon">✉️</span>
+                    <span>Messages</span>
+                </a>
+                <a href="#reports" class="nav-item" data-section="reports">
+                    <span class="nav-icon">📄</span>
+                    <span>Reports</span>
+                </a>
+                <a href="#upload" class="nav-item" data-section="upload">
+                    <span class="nav-icon">📤</span>
+                    <span>Upload Data</span>
+                </a>
+                <a href="#activity" class="nav-item" data-section="activity">
+                    <span class="nav-icon">🔔</span>
+                    <span>Activity Logs</span>
+                </a>
+                <a href="#settings" class="nav-item" data-section="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span>System Settings</span>
+                </a>
+                <a href="#profile" class="nav-item" data-section="profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" id="logoutBtn">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <h1 id="pageTitle">Super User Dashboard</h1>
+                    <p class="breadcrumb">Home / Dashboard</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Loading...</span>
+                        <span class="user-email" id="userEmail"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Overview Section -->
+            <section id="overviewSection" class="content-section active">
+                <div class="welcome-card welcome-card-super">
+                    <h2>👑 Super User Dashboard</h2>
+                    <p>Welcome, <strong id="superUserName">Super User</strong>!</p>
+                    <p>You have full system access and control</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid stats-grid-6">
+                    <div class="stat-card stat-primary">
+                        <div class="stat-icon">👑</div>
+                        <div class="stat-info">
+                            <h3 id="totalAdmins">0</h3>
+                            <p>Administrators</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card stat-success">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <h3 id="totalStudents">0</h3>
+                            <p>Students</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card stat-info">
+                        <div class="stat-icon">👨‍💼</div>
+                        <div class="stat-info">
+                            <h3 id="totalCoordinators">0</h3>
+                            <p>Coordinators</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card stat-warning">
+                        <div class="stat-icon">✓</div>
+                        <div class="stat-info">
+                            <h3 id="totalAttendance">0</h3>
+                            <p>Attendance Records</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card stat-danger">
+                        <div class="stat-icon">✉️</div>
+                        <div class="stat-info">
+                            <h3 id="totalMessages">0</h3>
+                            <p>Messages</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card stat-secondary">
+                        <div class="stat-icon">📄</div>
+                        <div class="stat-info">
+                            <h3 id="totalReports">0</h3>
+                            <p>Reports</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Health -->
+                <div class="system-health">
+                    <h3>🔧 System Health</h3>
+                    <div class="health-grid">
+                        <div class="health-item">
+                            <span class="health-label">Database Status:</span>
+                            <span class="health-status status-success" id="dbStatus">✓ Connected</span>
+                        </div>
+                        <div class="health-item">
+                            <span class="health-label">API Status:</span>
+                            <span class="health-status status-success" id="apiStatus">✓ Running</span>
+                        </div>
+                        <div class="health-item">
+                            <span class="health-label">Last Backup:</span>
+                            <span class="health-value" id="lastBackup">Never</span>
+                        </div>
+                        <div class="health-item">
+                            <span class="health-label">Uptime:</span>
+                            <span class="health-value" id="uptime">24h 35m</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>⚡ Quick Actions</h3>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="showSection('admins')">
+                            <span>👑</span>
+                            Manage Admins
+                        </button>
+                        <button class="action-btn" onclick="showSection('students')">
+                            <span>👥</span>
+                            View Students
+                        </button>
+                        <button class="action-btn" onclick="showSection('coordinators')">
+                            <span>👨‍💼</span>
+                            View Coordinators
+                        </button>
+                        <button class="action-btn" onclick="showSection('upload')">
+                            <span>📤</span>
+                            Upload Data
+                        </button>
+                        <button class="action-btn" onclick="showSection('activity')">
+                            <span>🔔</span>
+                            Activity Logs
+                        </button>
+                        <button class="action-btn" onclick="performBackup()">
+                            <span>💾</span>
+                            Backup Database
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="recent-section">
+                    <h3>Recent System Activity</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Activity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentActivityTable">
+                                <tr>
+                                    <td colspan="5" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Manage Admins Section -->
+            <section id="adminsSection" class="content-section">
+                <div class="section-header">
+                    <h2>👑 Manage Administrators</h2>
+                    <p>Create, update, and delete admin accounts</p>
+                </div>
+
+                <button class="btn btn-primary" id="createAdminBtn">
+                    ➕ Create New Admin
+                </button>
+
+                <!-- Create Admin Form -->
+                <div id="createAdminForm" class="form-card hidden">
+                    <h3>Create New Administrator</h3>
+                    <form id="newAdminForm">
+                        <div class="form-group">
+                            <label for="adminName">Full Name</label>
+                            <input type="text" id="adminName" required placeholder="Enter full name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="adminEmail">Email Address</label>
+                            <input type="email" id="adminEmail" required placeholder="admin@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="adminPassword">Password</label>
+                            <input type="password" id="adminPassword" required placeholder="Minimum 8 characters">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" required placeholder="Re-enter password">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Create Admin</button>
+                            <button type="button" class="btn btn-outline" id="cancelAdminBtn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Admins List -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Created Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminsTable">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading administrators...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Students Section -->
+            <section id="studentsSection" class="content-section">
+                <div class="section-header">
+                    <h2>👥 All Students</h2>
+                    <p>Complete student database management</p>
+                </div>
+
+                <div class="filter-bar">
+                    <input type="text" id="searchStudent" class="filter-input" placeholder="Search students...">
+                    <select id="communityFilter" class="filter-input">
+                        <option value="">All Communities</option>
+                    </select>
+                    <button class="btn btn-secondary" id="searchStudentBtn">Search</button>
+                    <button class="btn btn-primary" id="exportStudentsBtn">📊 Export All</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Index Number</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Community</th>
+                                <th>Email Verified</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTable">
+                            <tr>
+                                <td colspan="6" class="text-center">Loading students...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Coordinators Section -->
+            <section id="coordinatorsSection" class="content-section">
+                <div class="section-header">
+                    <h2>👨‍💼 All Coordinators</h2>
+                    <p>Complete coordinator database management</p>
+                </div>
+
+                <div class="filter-bar">
+                    <input type="text" id="searchCoordinator" class="filter-input" placeholder="Search coordinators...">
+                    <button class="btn btn-secondary" id="searchCoordinatorBtn">Search</button>
+                    <button class="btn btn-primary" id="exportCoordinatorsBtn">📊 Export All</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Assigned Community</th>
+                                <th>Email Verified</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coordinatorsTable">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading coordinators...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Attendance Section -->
+            <section id="attendanceSection" class="content-section">
+                <div class="section-header">
+                    <h2>✓ Attendance Overview</h2>
+                    <p>Complete attendance records across all communities</p>
+                </div>
+
+                <div class="filter-bar">
+                    <input type="date" id="filterDateFrom" class="filter-input">
+                    <input type="date" id="filterDateTo" class="filter-input">
+                    <button class="btn btn-secondary" id="filterAttendanceBtn">Filter</button>
+                    <button class="btn btn-outline" id="clearFilterBtn">Clear</button>
+                    <button class="btn btn-primary" id="exportAttendanceBtn">📊 Export</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Students Marked</th>
+                                <th>Present</th>
+                                <th>Absent</th>
+                                <th>Pending</th>
+                                <th>Verified</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTable">
+                            <tr>
+                                <td colspan="6" class="text-center">Loading attendance...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Messages Section -->
+            <section id="messagesSection" class="content-section">
+                <div class="section-header">
+                    <h2>✉️ All System Messages</h2>
+                    <p>Monitor all communications in the system</p>
+                </div>
+
+                <div class="filter-bar">
+                    <select id="messageSenderFilter" class="filter-input">
+                        <option value="">All Senders</option>
+                        <option value="student">Students</option>
+                        <option value="coordinator">Coordinators</option>
+                        <option value="admin">Admins</option>
+                    </select>
+                    <select id="messageReceiverFilter" class="filter-input">
+                        <option value="">All Receivers</option>
+                        <option value="student">Students</option>
+                        <option value="coordinator">Coordinators</option>
+                        <option value="admin">Admins</option>
+                    </select>
+                    <button class="btn btn-secondary" id="filterMessagesBtn">Filter</button>
+                </div>
+
+                <div class="messages-container">
+                    <div id="messagesList">
+                        <p class="text-muted">Loading messages...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reportsSection" class="content-section">
+                <div class="section-header">
+                    <h2>📄 All Reports</h2>
+                    <p>System-wide report monitoring</p>
+                </div>
+
+                <div class="filter-bar">
+                    <select id="reportTypeFilter" class="filter-input">
+                        <option value="">All Types</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="incident">Incident</option>
+                    </select>
+                    <button class="btn btn-secondary" id="filterReportsBtn">Filter</button>
+                    <button class="btn btn-primary" id="exportReportsBtn">📊 Export</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Coordinator</th>
+                                <th>Community</th>
+                                <th>Type</th>
+                                <th>Preview</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportsTable">
+                            <tr>
+                                <td colspan="6" class="text-center">Loading reports...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Upload Data Section (Same as Admin) -->
+            <section id="uploadSection" class="content-section">
+                <div class="section-header">
+                    <h2>📤 Upload Data</h2>
+                    <p>Bulk upload students and coordinators from Excel files</p>
+                </div>
+
+                <div class="upload-grid">
+                    <!-- Upload Students -->
+                    <div class="upload-card">
+                        <h3>📤 Upload Students</h3>
+                        <p class="text-muted">Upload Excel file with student data</p>
+                        
+                        <div class="file-format-info">
+                            <h4>Required Format:</h4>
+                            <ul>
+                                <li>Column A: Full Name</li>
+                                <li>Column B: Index Number</li>
+                                <li>Column C: Email</li>
+                                <li>Column D: Community</li>
+                            </ul>
+                        </div>
+
+                        <form id="uploadStudentsForm" class="upload-form">
+                            <div class="form-group">
+                                <label for="studentsFile">Select Excel File</label>
+                                <input type="file" id="studentsFile" accept=".xlsx,.xls" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Upload Students</button>
+                        </form>
+
+                        <div id="studentUploadResult" class="upload-result hidden"></div>
+                    </div>
+
+                    <!-- Upload Coordinators -->
+                    <div class="upload-card">
+                        <h3>📤 Upload Coordinators</h3>
+                        <p class="text-muted">Upload Excel file with coordinator data</p>
+                        
+                        <div class="file-format-info">
+                            <h4>Required Format:</h4>
+                            <ul>
+                                <li>Column A: Full Name</li>
+                                <li>Column B: Email</li>
+                                <li>Column C: Assigned Community</li>
+                            </ul>
+                        </div>
+
+                        <form id="uploadCoordinatorsForm" class="upload-form">
+                            <div class="form-group">
+                                <label for="coordinatorsFile">Select Excel File</label>
+                                <input type="file" id="coordinatorsFile" accept=".xlsx,.xls" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Upload Coordinators</button>
+                        </form>
+
+                        <div id="coordinatorUploadResult" class="upload-result hidden"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Activity Logs Section -->
+            <section id="activitySection" class="content-section">
+                <div class="section-header">
+                    <h2>🔔 Activity Logs</h2>
+                    <p>Complete system activity monitoring</p>
+                </div>
+
+                <div class="filter-bar">
+                    <select id="activityTypeFilter" class="filter-input">
+                        <option value="">All Activities</option>
+                        <option value="login">Login</option>
+                        <option value="logout">Logout</option>
+                        <option value="signup">Signup</option>
+                        <option value="attendance_submit">Attendance</option>
+                        <option value="message_sent">Messages</option>
+                        <option value="report_generated">Reports</option>
+                    </select>
+                    <select id="activityRoleFilter" class="filter-input">
+                        <option value="">All Roles</option>
+                        <option value="student">Students</option>
+                        <option value="coordinator">Coordinators</option>
+                        <option value="admin">Admins</option>
+                        <option value="super_user">Super Users</option>
+                    </select>
+                    <button class="btn btn-secondary" id="filterActivityBtn">Filter</button>
+                    <button class="btn btn-primary" id="exportActivityBtn">📊 Export</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>User ID</th>
+                                <th>Role</th>
+                                <th>Activity</th>
+                                <th>IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityTable">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading activity logs...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- System Settings Section -->
+            <section id="settingsSection" class="content-section">
+                <div class="section-header">
+                    <h2>⚙️ System Settings</h2>
+                    <p>Configure system-wide settings and parameters</p>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3>🔒 Security Settings</h3>
+                        <div class="setting-item">
+                            <label>Enable Two-Factor Authentication</label>
+                            <input type="checkbox" id="enableTFA">
+                        </div>
+                        <div class="setting-item">
+                            <label>Session Timeout (minutes)</label>
+                            <input type="number" id="sessionTimeout" value="30">
+                        </div>
+                        <button class="btn btn-secondary">Save Security Settings</button>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>📧 Email Settings</h3>
+                        <div class="setting-item">
+                            <label>SMTP Server</label>
+                            <input type="text" id="smtpServer" placeholder="smtp.example.com">
+                        </div>
+                        <div class="setting-item">
+                            <label>SMTP Port</label>
+                            <input type="number" id="smtpPort" value="587">
+                        </div>
+                        <button class="btn btn-secondary">Save Email Settings</button>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3>🗄️ Database Settings</h3>
+                        <button class="btn btn-primary" onclick="performBackup()">💾 Backup Database</button>
+                        <button class="btn btn-outline" onclick="restoreDatabase()">♻️ Restore Database</button>
+                        <button class="btn btn-danger" onclick="clearLogs()">🗑️ Clear Old Logs</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profileSection" class="content-section">
+                <div class="section-header">
+                    <h2>👤 Super User Profile</h2>
+                    <p>Your administrator information</p>
+                </div>
+
+                <div class="profile-grid">
+                    <div class="profile-card">
+                        <h3>Personal Information</h3>
+                        <div class="profile-info">
+                            <div class="info-row">
+                                <span class="label">Full Name:</span>
+                                <span class="value" id="profileName">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Email:</span>
+                                <span class="value" id="profileEmail">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Role:</span>
+                                <span class="value">👑 Super User (Full Access)</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Member Since:</span>
+                                <span class="value" id="profileDate">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // Initialize dashboard
+        let superUserData = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('user'));
+            const role = localStorage.getItem('userRole');
+
+            if (!user || role !== 'super_user') {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            superUserData = user;
+            loadSuperUserData();
+            loadSystemStatistics();
+        });
+
+        // Load super user data
+        function loadSuperUserData() {
+            document.getElementById('userName').textContent = superUserData.full_name;
+            document.getElementById('userEmail').textContent = superUserData.email;
+            document.getElementById('superUserName').textContent = superUserData.full_name;
+
+            // Profile section
+            document.getElementById('profileName').textContent = superUserData.full_name;
+            document.getElementById('profileEmail').textContent = superUserData.email;
+            document.getElementById('profileDate').textContent = new Date(superUserData.created_at).toLocaleDateString();
+        }
+
+        // Load system statistics
+        async function loadSystemStatistics() {
+            try {
+                const response = await fetch('http://localhost:8080/DCROP/backend/index.php?endpoint=system_stats');
+                const result = await response.json();
+
+                if (result.success) {
+                    const stats = result.statistics;
+                    document.getElementById('totalStudents').textContent = stats.total_students || 0;
+                    document.getElementById('totalCoordinators').textContent = stats.total_coordinators || 0;
+                    document.getElementById('totalAttendance').textContent = stats.total_attendance || 0;
+                    document.getElementById('totalMessages').textContent = stats.total_messages || 0;
+                    document.getElementById('totalReports').textContent = stats.total_reports || 0;
+                }
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        // System management functions
+        function performBackup() {
+            alert('Database backup feature coming soon!');
+        }
+
+        function restoreDatabase() {
+            if (confirm('Are you sure you want to restore the database? This will overwrite current data.')) {
+                alert('Database restore feature coming soon!');
+            }
+        }
+
+        function clearLogs() {
+            if (confirm('Are you sure you want to clear old activity logs?')) {
+                alert('Clear logs feature coming soon!');
+            }
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('userRole');
+                window.location.href = '../index.html';
+            }
+        });
+    </script>
+</body>
+</html>
