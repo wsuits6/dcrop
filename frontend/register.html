@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - DCROP</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="register-wrapper">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <h1>DCROP</h1>
+                <p>Student Registration Portal</p>
+                <p class="subtitle">TTFFP Program - UDS</p>
+            </div>
+
+            <!-- Registration Form -->
+            <div class="register-form-section">
+                <h2>Create Student Account</h2>
+                <p class="form-subtitle">Register to access your TTFFP attendance system</p>
+
+                <!-- Info Alert -->
+                <div class="info-alert">
+                    <strong>⚠️ Important:</strong> You must be pre-registered by your coordinator before creating an account. 
+                    Your index number must exist in the system.
+                </div>
+
+                <!-- Error/Success Messages -->
+                <div id="messageBox" class="message-box hidden"></div>
+
+                <form id="registerForm" class="register-form">
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label for="fullName">Full Name <span class="required">*</span></label>
+                        <input 
+                            type="text" 
+                            id="fullName" 
+                            name="full_name" 
+                            placeholder="Enter your full name" 
+                            required
+                            minlength="3"
+                        >
+                        <small class="form-hint">As it appears on your student ID</small>
+                    </div>
+
+                    <!-- Index Number -->
+                    <div class="form-group">
+                        <label for="indexNumber">Index Number <span class="required">*</span></label>
+                        <input 
+                            type="text" 
+                            id="indexNumber" 
+                            name="index_number" 
+                            placeholder="e.g., UDS/ABC/12345" 
+                            required
+                        >
+                        <small class="form-hint">Your unique student index number</small>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email">Email Address <span class="required">*</span></label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            placeholder="student@example.com" 
+                            required
+                        >
+                        <small class="form-hint">You'll receive a verification email here</small>
+                    </div>
+
+                    <!-- Community -->
+                    <div class="form-group">
+                        <label for="community">Community Assignment <span class="required">*</span></label>
+                        <select id="community" name="community" required>
+                            <option value="">-- Select Your Community --</option>
+                            <option value="Tamale">Tamale</option>
+                            <option value="Savelugu">Savelugu</option>
+                            <option value="Tolon">Tolon</option>
+                            <option value="Kumbungu">Kumbungu</option>
+                            <option value="Nanton">Nanton</option>
+                            <option value="Karaga">Karaga</option>
+                            <option value="Gushegu">Gushegu</option>
+                            <option value="Zabzugu">Zabzugu</option>
+                            <option value="Yendi">Yendi</option>
+                            <option value="Mion">Mion</option>
+                        </select>
+                        <small class="form-hint">Select the community you're assigned to</small>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="password">Password <span class="required">*</span></label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="Create a strong password" 
+                            required
+                            minlength="8"
+                        >
+                        <small class="form-hint">Minimum 8 characters</small>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirm_password" 
+                            placeholder="Re-enter your password" 
+                            required
+                            minlength="8"
+                        >
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <span>I agree to the <a href="#" class="link">Terms and Conditions</a> and <a href="#" class="link">Privacy Policy</a></span>
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary" id="registerBtn">
+                        <span class="btn-text">Create Account</span>
+                        <span class="btn-loader hidden">Creating account...</span>
+                    </button>
+                </form>
+
+                <!-- Login Link -->
+                <div class="form-footer">
+                    <p>Already have an account? 
+                        <a href="index.html" class="login-link">Sign In</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="register-footer">
+                <p>&copy; 2024 DCROP System. University for Development Studies (UDS)</p>
+                <p>Need help? Contact your coordinator</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+    <script>
+        // Registration Form Handler
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const registerBtn = document.getElementById('registerBtn');
+            const btnText = registerBtn.querySelector('.btn-text');
+            const btnLoader = registerBtn.querySelector('.btn-loader');
+            const messageBox = document.getElementById('messageBox');
+            
+            // Get form data
+            const formData = {
+                full_name: document.getElementById('fullName').value,
+                index_number: document.getElementById('indexNumber').value,
+                email: document.getElementById('email').value,
+                community: document.getElementById('community').value,
+                password: document.getElementById('password').value
+            };
+            
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            
+            // Validation
+            if (!agreeTerms) {
+                showMessage('Please agree to the terms and conditions', 'error');
+                return;
+            }
+            
+            if (formData.password !== confirmPassword) {
+                showMessage('Passwords do not match', 'error');
+                return;
+            }
+            
+            if (formData.password.length < 8) {
+                showMessage('Password must be at least 8 characters long', 'error');
+                return;
+            }
+            
+            // Show loading state
+            registerBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoader.classList.remove('hidden');
+            
+            try {
+                // Call backend API
+                const response = await fetch('http://localhost:8080/DCROP/backend/index.php?endpoint=register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('Registration successful! Please check your email to verify your account.', 'success');
+                    
+                    // Reset form
+                    document.getElementById('registerForm').reset();
+                    
+                    // Redirect to login after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 3000);
+                } else {
+                    showMessage(result.message || 'Registration failed. Please try again.', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                showMessage('Connection error. Please check your internet connection and try again.', 'error');
+            } finally {
+                // Reset button state
+                registerBtn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+            }
+        });
+        
+        // Show message function
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.className = 'message-box ' + type;
+            messageBox.classList.remove('hidden');
+            
+            // Auto hide after 8 seconds
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 8000);
+            
+            // Scroll to message
+            messageBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Password strength indicator (optional enhancement)
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const hint = e.target.nextElementSibling;
+            
+            if (password.length >= 8) {
+                hint.textContent = '✓ Strong password';
+                hint.style.color = 'green';
+            } else if (password.length >= 6) {
+                hint.textContent = 'Medium strength - add more characters';
+                hint.style.color = 'orange';
+            } else if (password.length > 0) {
+                hint.textContent = 'Weak password - minimum 8 characters';
+                hint.style.color = 'red';
+            } else {
+                hint.textContent = 'Minimum 8 characters';
+                hint.style.color = '#666';
+            }
+        });
+        
+        // Confirm password match validation
+        document.getElementById('confirmPassword').addEventListener('input', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = e.target.value;
+            const hint = e.target.nextElementSibling;
+            
+            if (!hint) {
+                hint = document.createElement('small');
+                hint.className = 'form-hint';
+                e.target.parentNode.appendChild(hint);
+            }
+            
+            if (confirmPassword.length > 0) {
+                if (password === confirmPassword) {
+                    hint.textContent = '✓ Passwords match';
+                    hint.style.color = 'green';
+                } else {
+                    hint.textContent = '✗ Passwords do not match';
+                    hint.style.color = 'red';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
