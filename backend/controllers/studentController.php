@@ -95,15 +95,18 @@ class StudentController {
         $student = $this->studentModel->authenticate($email, $password);
         
         if($student) {
-            // Check email verification
+            // TEMPORARILY DISABLED EMAIL VERIFICATION CHECK
+            // Uncomment when email system is implemented
+            /*
             if($student['email_verified'] == 0) {
                 return [
                     'success' => false,
                     'message' => 'Please verify your email before logging in'
                 ];
             }
+            */
             
-            // TODO: Log activity
+            // Log activity
             $this->logActivity($student['id'], 'login');
             
             return [
