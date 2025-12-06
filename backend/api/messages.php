@@ -182,7 +182,9 @@ function handlePost($action) {
 }
 
 /**
+ * ===================
  * Handle GET requests
+ * ===================
  */
 function handleGet($action) {
     global $response;

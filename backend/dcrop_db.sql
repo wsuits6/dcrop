@@ -98,7 +98,7 @@ CREATE TABLE reports (
     coordinator_id INT NOT NULL,
     report_type ENUM('daily', 'weekly', 'monthly', 'incident') NOT NULL,
     content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMEShttp://localhost:8080/DCROP/backend/index.php?endpoint=registerTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (coordinator_id) REFERENCES coordinators(id) ON DELETE CASCADE,
     INDEX idx_coordinator_id (coordinator_id),
