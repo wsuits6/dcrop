@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - DCROP</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>DCROP</h2>
+                <p class="user-role">Student Portal</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#overview" class="nav-item active" data-section="overview">
+                    <span class="nav-icon">📊</span>
+                    <span>Overview</span>
+                </a>
+                <a href="#attendance" class="nav-item" data-section="attendance">
+                    <span class="nav-icon">✓</span>
+                    <span>Submit Attendance</span>
+                </a>
+                <a href="#history" class="nav-item" data-section="history">
+                    <span class="nav-icon">📅</span>
+                    <span>Attendance History</span>
+                </a>
+                <a href="#messages" class="nav-item" data-section="messages">
+                    <span class="nav-icon">✉️</span>
+                    <span>Messages</span>
+                    <span class="badge" id="messageBadge">0</span>
+                </a>
+                <a href="#profile" class="nav-item" data-section="profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" id="logoutBtn">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <h1 id="pageTitle">Dashboard Overview</h1>
+                    <p class="breadcrumb">Home / Dashboard</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Loading...</span>
+                        <span class="user-email" id="userEmail"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Overview Section -->
+            <section id="overviewSection" class="content-section active">
+                <div class="welcome-card">
+                    <h2>Welcome back, <span id="studentName">Student</span>!</h2>
+                    <p>Track your TTFFP attendance and stay connected with your coordinator.</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-info">
+                            <h3 id="totalDays">0</h3>
+                            <p>Total Days</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">✓</div>
+                        <div class="stat-info">
+                            <h3 id="presentDays">0</h3>
+                            <p>Present Days</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-info">
+                            <h3 id="pendingDays">0</h3>
+                            <p>Pending Verification</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <h3 id="attendanceRate">0%</h3>
+                            <p>Attendance Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="showSection('attendance')">
+                            <span>✓</span>
+                            Submit Today's Attendance
+                        </button>
+                        <button class="action-btn" onclick="showSection('history')">
+                            <span>📅</span>
+                            View History
+                        </button>
+                        <button class="action-btn" onclick="showSection('messages')">
+                            <span>✉️</span>
+                            Send Message
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Attendance -->
+                <div class="recent-section">
+                    <h3>Recent Attendance</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Verified</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentAttendanceTable">
+                                <tr>
+                                    <td colspan="4" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Attendance Section -->
+            <section id="attendanceSection" class="content-section">
+                <div class="section-header">
+                    <h2>Submit Attendance</h2>
+                    <p>Mark your attendance with GPS location verification</p>
+                </div>
+
+                <div class="form-card">
+                    <div id="attendanceMessage" class="message-box hidden"></div>
+
+                    <form id="attendanceForm">
+                        <div class="form-group">
+                            <label for="attendanceDate">Date</label>
+                            <input type="date" id="attendanceDate" required>
+                        </div>
+
+                        <div class="location-info">
+                            <h4>Location Information</h4>
+                            <p id="locationStatus">Click "Get Location" to capture your GPS coordinates</p>
+                            <div class="location-coords hidden" id="locationCoords">
+                                <p><strong>Latitude:</strong> <span id="latDisplay">-</span></p>
+                                <p><strong>Longitude:</strong> <span id="lngDisplay">-</span></p>
+                            </div>
+                            <button type="button" class="btn btn-secondary" id="getLocationBtn">
+                                📍 Get My Location
+                            </button>
+                        </div>
+
+                        <input type="hidden" id="latitude" name="latitude">
+                        <input type="hidden" id="longitude" name="longitude">
+
+                        <button type="submit" class="btn btn-primary" id="submitAttendanceBtn">
+                            Submit Attendance
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section id="historySection" class="content-section">
+                <div class="section-header">
+                    <h2>Attendance History</h2>
+                    <p>View your complete attendance records</p>
+                </div>
+
+                <div class="filter-bar">
+                    <input type="month" id="filterMonth" class="filter-input">
+                    <button class="btn btn-secondary" id="filterBtn">Filter</button>
+                    <button class="btn btn-outline" id="clearFilterBtn">Clear</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Verified</th>
+                                <th>Location</th>
+                                <th>Submitted At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading attendance history...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Messages Section -->
+            <section id="messagesSection" class="content-section">
+                <div class="section-header">
+                    <h2>Messages</h2>
+                    <p>Communicate with your coordinator</p>
+                </div>
+
+                <button class="btn btn-primary" id="newMessageBtn">
+                    ✉️ New Message
+                </button>
+
+                <!-- New Message Form (Hidden by default) -->
+                <div id="newMessageForm" class="form-card hidden">
+                    <h3>Send Message to Coordinator</h3>
+                    <form id="sendMessageForm">
+                        <div class="form-group">
+                            <label for="messageContent">Message</label>
+                            <textarea id="messageContent" rows="5" required 
+                                placeholder="Type your message here..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Send Message</button>
+                            <button type="button" class="btn btn-outline" id="cancelMessageBtn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Messages List -->
+                <div class="messages-container">
+                    <h3>Sent Messages</h3>
+                    <div id="messagesList">
+                        <p class="text-muted">Loading messages...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profileSection" class="content-section">
+                <div class="section-header">
+                    <h2>My Profile</h2>
+                    <p>View and update your information</p>
+                </div>
+
+                <div class="profile-grid">
+                    <div class="profile-card">
+                        <h3>Personal Information</h3>
+                        <div class="profile-info">
+                            <div class="info-row">
+                                <span class="label">Full Name:</span>
+                                <span class="value" id="profileName">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Index Number:</span>
+                                <span class="value" id="profileIndex">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Email:</span>
+                                <span class="value" id="profileEmail">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Community:</span>
+                                <span class="value" id="profileCommunity">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Member Since:</span>
+                                <span class="value" id="profileDate">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // Initialize dashboard
+        let studentData = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('user'));
+            const role = localStorage.getItem('userRole');
+
+            if (!user || role !== 'student') {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            studentData = user;
+            loadStudentData();
+            loadAttendanceStats();
+            loadRecentAttendance();
+
+            // Set today's date as default
+            document.getElementById('attendanceDate').valueAsDate = new Date();
+        });
+
+        // Load student data
+        function loadStudentData() {
+            document.getElementById('userName').textContent = studentData.full_name;
+            document.getElementById('userEmail').textContent = studentData.email;
+            document.getElementById('studentName').textContent = studentData.full_name;
+
+            // Profile section
+            document.getElementById('profileName').textContent = studentData.full_name;
+            document.getElementById('profileIndex').textContent = studentData.index_number;
+            document.getElementById('profileEmail').textContent = studentData.email;
+            document.getElementById('profileCommunity').textContent = studentData.community;
+            document.getElementById('profileDate').textContent = new Date(studentData.created_at).toLocaleDateString();
+        }
+
+        // Load attendance statistics
+        async function loadAttendanceStats() {
+            try {
+                const response = await fetch(`http://localhost:8080/DCROP/backend/api/attendance.php?action=history&student_id=${studentData.id}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const attendance = result.attendance;
+                    const total = attendance.length;
+                    const present = attendance.filter(a => a.status === 'present').length;
+                    const pending = attendance.filter(a => a.status === 'pending').length;
+                    const rate = total > 0 ? ((present / total) * 100).toFixed(1) : 0;
+
+                    document.getElementById('totalDays').textContent = total;
+                    document.getElementById('presentDays').textContent = present;
+                    document.getElementById('pendingDays').textContent = pending;
+                    document.getElementById('attendanceRate').textContent = rate + '%';
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load recent attendance
+        async function loadRecentAttendance() {
+            try {
+                const response = await fetch(`http://localhost:8080/DCROP/backend/api/attendance.php?action=history&student_id=${studentData.id}`);
+                const result = await response.json();
+
+                const tbody = document.getElementById('recentAttendanceTable');
+                
+                if (result.success && result.attendance.length > 0) {
+                    const recent = result.attendance.slice(0, 5);
+                    tbody.innerHTML = recent.map(a => `
+                        <tr>
+                            <td>${a.date}</td>
+                            <td><span class="status-badge status-${a.status}">${a.status}</span></td>
+                            <td>${a.verified ? '✓ Yes' : '⏱️ Pending'}</td>
+                            <td>${new Date(a.created_at).toLocaleTimeString()}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center">No attendance records yet</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading recent attendance:', error);
+            }
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('userRole');
+                window.location.href = '../index.html';
+            }
+        });
+    </script>
+</body>
+</html>
