@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCROP - Login</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-wrapper">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <h1>DCROP</h1>
+                <p>Digital Community Registration & Operations Platform</p>
+                <p class="subtitle">TTFFP Program Management System - UDS</p>
+            </div>
+
+            <!-- Login Form -->
+            <div class="login-form-section">
+                <h2>Welcome Back</h2>
+                <p class="form-subtitle">Sign in to your account</p>
+
+                <!-- Error/Success Messages -->
+                <div id="messageBox" class="message-box hidden"></div>
+
+                <form id="loginForm" class="login-form">
+                    <!-- Role Selection -->
+                    <div class="form-group">
+                        <label for="role">Select Your Role</label>
+                        <select id="role" name="role" required>
+                            <option value="">-- Choose Role --</option>
+                            <option value="student">Student</option>
+                            <option value="coordinator">Coordinator</option>
+                            <option value="admin">Admin</option>
+                            <option value="super_user">Super User</option>
+                        </select>
+                    </div>
+
+                    <!-- Email Input -->
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            placeholder="Enter your email" 
+                            required
+                        >
+                    </div>
+
+                    <!-- Password Input -->
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="Enter your password" 
+                            required
+                        >
+                    </div>
+
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-password">Forgot Password?</a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary" id="loginBtn">
+                        <span class="btn-text">Sign In</span>
+                        <span class="btn-loader hidden">Signing in...</span>
+                    </button>
+                </form>
+
+                <!-- Register Link (Only for Students) -->
+                <div class="form-footer">
+                    <p>Don't have an account? 
+                        <a href="register.html" class="register-link">Register as Student</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="login-footer">
+                <p>&copy; 2024 DCROP System. University for Development Studies (UDS)</p>
+                <p>TTFFP Program Management</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+    <script>
+        // Login Form Handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = loginBtn.querySelector('.btn-text');
+            const btnLoader = loginBtn.querySelector('.btn-loader');
+            const messageBox = document.getElementById('messageBox');
+            
+            // Get form data
+            const formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value
+            };
+            
+            // Validation
+            if (!formData.role) {
+                showMessage('Please select your role', 'error');
+                return;
+            }
+            
+            // Show loading state
+            loginBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoader.classList.remove('hidden');
+            
+            try {
+                // Call backend API
+                const response = await fetch('http://localhost:8080/DCROP/backend/index.php?endpoint=login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Store user data in localStorage
+                    const userKey = formData.role === 'student' ? 'student' : 
+                                    formData.role === 'coordinator' ? 'coordinator' : 
+                                    'admin';
+                    localStorage.setItem('user', JSON.stringify(result[userKey]));
+                    localStorage.setItem('userRole', formData.role);
+                    
+                    showMessage('Login successful! Redirecting...', 'success');
+                    
+                    // Redirect based on role
+                    setTimeout(() => {
+                        switch(formData.role) {
+                            case 'student':
+                                window.location.href = 'dashboard/student.html';
+                                break;
+                            case 'coordinator':
+                                window.location.href = 'dashboard/coordinator.html';
+                                break;
+                            case 'admin':
+                                window.location.href = 'dashboard/admin.html';
+                                break;
+                            case 'super_user':
+                                window.location.href = 'dashboard/superuser.html';
+                                break;
+                        }
+                    }, 1500);
+                } else {
+                    showMessage(result.message || 'Login failed', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('Connection error. Please try again.', 'error');
+            } finally {
+                // Reset button state
+                loginBtn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+            }
+        });
+        
+        // Show message function
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.className = 'message-box ' + type;
+            messageBox.classList.remove('hidden');
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 

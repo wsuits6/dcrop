@@ -6,7 +6,7 @@
  */
 
 require_once __DIR__ . '/../models/adminModel.php';
-require_once __DIR__ . '/../vendor/autoload.php'; // For PhpSpreadsheet (Excel handling)
+// require_once __DIR__ . '/../vendor/autoload.php'; // For PhpSpreadsheet (Excel handling)
 
 class AdminController {
     private $adminModel;
