@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Attendance - DCROP</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-content">
+                <h1>📍 Submit Attendance</h1>
+                <p>Mark your presence with GPS verification</p>
+            </div>
+            <button class="btn btn-outline" onclick="goBack()">← Back to Dashboard</button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="page-content">
+            <!-- User Info Card -->
+            <div class="info-card">
+                <div class="user-details">
+                    <h3 id="studentName">Loading...</h3>
+                    <p><strong>Index:</strong> <span id="studentIndex">-</span></p>
+                    <p><strong>Community:</strong> <span id="studentCommunity">-</span></p>
+                </div>
+            </div>
+
+            <!-- Attendance Form Card -->
+            <div class="form-card">
+                <h2>Mark Today's Attendance</h2>
+                
+                <!-- Messages -->
+                <div id="messageBox" class="message-box hidden"></div>
+
+                <form id="attendanceForm">
+                    <!-- Date Selection -->
+                    <div class="form-group">
+                        <label for="attendanceDate">
+                            Select Date <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            id="attendanceDate" 
+                            name="date" 
+                            required
+                        >
+                        <small class="form-hint">You can only submit attendance for today or past dates</small>
+                    </div>
+
+                    <!-- Location Section -->
+                    <div class="location-section">
+                        <h3>📍 Location Verification</h3>
+                        <p class="text-muted">Your GPS coordinates are required to verify your presence in the assigned community.</p>
+
+                        <div id="locationStatus" class="location-status">
+                            <div class="status-icon">📍</div>
+                            <p>Click the button below to capture your current location</p>
+                        </div>
+
+                        <div id="locationDetails" class="location-details hidden">
+                            <div class="detail-row">
+                                <span class="label">Latitude:</span>
+                                <span class="value" id="latDisplay">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Longitude:</span>
+                                <span class="value" id="lngDisplay">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Accuracy:</span>
+                                <span class="value" id="accuracyDisplay">-</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Captured:</span>
+                                <span class="value" id="timeDisplay">-</span>
+                            </div>
+                        </div>
+
+                        <button 
+                            type="button" 
+                            class="btn btn-secondary btn-location" 
+                            id="getLocationBtn"
+                        >
+                            📍 Get My Location
+                        </button>
+
+                        <!-- Hidden inputs for coordinates -->
+                        <input type="hidden" id="latitude" name="latitude">
+                        <input type="hidden" id="longitude" name="longitude">
+                    </div>
+
+                    <!-- Location Map Placeholder -->
+                    <div id="mapPlaceholder" class="map-placeholder hidden">
+                        <p>🗺️ Map view coming soon</p>
+                        <small>Your location will be displayed on a map</small>
+                    </div>
+
+                    <!-- Important Notice -->
+                    <div class="notice-box">
+                        <h4>⚠️ Important Notes:</h4>
+                        <ul>
+                            <li>Ensure you are physically present in your assigned community</li>
+                            <li>Location permissions must be enabled on your device</li>
+                            <li>GPS coordinates will be verified against community boundaries</li>
+                            <li>False attendance submissions may result in penalties</li>
+                            <li>You can only submit one attendance per day</li>
+                        </ul>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit" 
+                        class="btn btn-primary btn-submit" 
+                        id="submitBtn"
+                        disabled
+                    >
+                        <span class="btn-text">Submit Attendance</span>
+                        <span class="btn-loader hidden">Submitting...</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Submission History (Last 5) -->
+            <div class="history-preview">
+                <h3>Recent Submissions</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Verified</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentSubmissions">
+                            <tr>
+                                <td colspan="4" class="text-center">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <a href="history.html" class="btn btn-outline btn-block">View Full History</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/attendance.js"></script>
+    <script>
+        let studentData = null;
+        let locationCaptured = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            const user = JSON.parse(localStorage.getItem('user'));
+            const role = localStorage.getItem('userRole');
+
+            if (!user || role !== 'student') {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            studentData = user;
+            loadStudentInfo();
+            loadRecentSubmissions();
+
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendanceDate').value = today;
+            document.getElementById('attendanceDate').max = today;
+        });
+
+        // Load student information
+        function loadStudentInfo() {
+            document.getElementById('studentName').textContent = studentData.full_name;
+            document.getElementById('studentIndex').textContent = studentData.index_number;
+            document.getElementById('studentCommunity').textContent = studentData.community;
+        }
+
+        // Get Location Button
+        document.getElementById('getLocationBtn').addEventListener('click', function() {
+            const btn = this;
+            const originalText = btn.textContent;
+            
+            btn.disabled = true;
+            btn.textContent = '📍 Getting location...';
+
+            if (!navigator.geolocation) {
+                showMessage('Geolocation is not supported by your browser', 'error');
+                btn.disabled = false;
+                btn.textContent = originalText;
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    // Success
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+
+                    // Update hidden inputs
+                    document.getElementById('latitude').value = lat;
+                    document.getElementById('longitude').value = lng;
+
+                    // Update display
+                    document.getElementById('latDisplay').textContent = lat.toFixed(6);
+                    document.getElementById('lngDisplay').textContent = lng.toFixed(6);
+                    document.getElementById('accuracyDisplay').textContent = accuracy.toFixed(2) + ' meters';
+                    document.getElementById('timeDisplay').textContent = new Date().toLocaleTimeString();
+
+                    // Show location details
+                    document.getElementById('locationDetails').classList.remove('hidden');
+                    document.getElementById('locationStatus').innerHTML = `
+                        <div class="status-icon success">✓</div>
+                        <p class="success-text">Location captured successfully!</p>
+                    `;
+
+                    // Enable submit button
+                    document.getElementById('submitBtn').disabled = false;
+                    locationCaptured = true;
+
+                    btn.disabled = false;
+                    btn.textContent = '✓ Location Captured';
+                    btn.classList.add('btn-success');
+
+                    showMessage('Location captured successfully!', 'success');
+                },
+                function(error) {
+                    // Error
+                    let errorMsg = 'Unable to get location. ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg += 'Please enable location permissions.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg += 'Location information unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg += 'Location request timed out.';
+                            break;
+                        default:
+                            errorMsg += 'An unknown error occurred.';
+                    }
+
+                    showMessage(errorMsg, 'error');
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        });
+
+        // Submit Attendance Form
+        document.getElementById('attendanceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!locationCaptured) {
+                showMessage('Please capture your location first', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoader = submitBtn.querySelector('.btn-loader');
+
+            const formData = {
+                student_id: studentData.id,
+                date: document.getElementById('attendanceDate').value,
+                latitude: parseFloat(document.getElementById('latitude').value),
+                longitude: parseFloat(document.getElementById('longitude').value)
+            };
+
+            // Show loading
+            submitBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoader.classList.remove('hidden');
+
+            try {
+                const response = await fetch('http://localhost:8080/DCROP/backend/api/attendance.php?action=submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    
+                    // Reset form
+                    locationCaptured = false;
+                    document.getElementById('locationDetails').classList.add('hidden');
+                    document.getElementById('getLocationBtn').textContent = '📍 Get My Location';
+                    document.getElementById('getLocationBtn').classList.remove('btn-success');
+                    document.getElementById('submitBtn').disabled = true;
+
+                    // Reload recent submissions
+                    loadRecentSubmissions();
+
+                } else {
+                    showMessage(result.message, 'error');
+                }
+
+            } catch (error) {
+                console.error('Submission error:', error);
+                showMessage('Connection error. Please try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+            }
+        });
+
+        // Load recent submissions
+        async function loadRecentSubmissions() {
+            try {
+                const response = await fetch(`http://localhost:8080/DCROP/backend/api/attendance.php?action=history&student_id=${studentData.id}`);
+                const result = await response.json();
+
+                const tbody = document.getElementById('recentSubmissions');
+
+                if (result.success && result.attendance.length > 0) {
+                    const recent = result.attendance.slice(0, 5);
+                    tbody.innerHTML = recent.map(a => `
+                        <tr>
+                            <td>${a.date}</td>
+                            <td><span class="status-badge status-${a.status}">${a.status}</span></td>
+                            <td>${a.verified ? '✓ Yes' : '⏱️ Pending'}</td>
+                            <td>${new Date(a.created_at).toLocaleTimeString()}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center">No submissions yet</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading submissions:', error);
+            }
+        }
+
+        // Show message function
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.className = 'message-box ' + type;
+            messageBox.classList.remove('hidden');
+
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
+
+            messageBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Go back function
+        function goBack() {
+            window.location.href = '../dashboard/student.html';
+        }
+    </script>
+</body>
+</html>
