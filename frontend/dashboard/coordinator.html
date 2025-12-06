@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordinator Dashboard - DCROP</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>DCROP</h2>
+                <p class="user-role">Coordinator Portal</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#overview" class="nav-item active" data-section="overview">
+                    <span class="nav-icon">📊</span>
+                    <span>Overview</span>
+                </a>
+                <a href="#students" class="nav-item" data-section="students">
+                    <span class="nav-icon">👥</span>
+                    <span>My Students</span>
+                </a>
+                <a href="#attendance" class="nav-item" data-section="attendance">
+                    <span class="nav-icon">✓</span>
+                    <span>Attendance Records</span>
+                </a>
+                <a href="#messages" class="nav-item" data-section="messages">
+                    <span class="nav-icon">✉️</span>
+                    <span>Messages</span>
+                    <span class="badge" id="messageBadge">0</span>
+                </a>
+                <a href="#reports" class="nav-item" data-section="reports">
+                    <span class="nav-icon">📄</span>
+                    <span>Reports</span>
+                </a>
+                <a href="#activity" class="nav-item" data-section="activity">
+                    <span class="nav-icon">🔔</span>
+                    <span>Student Activity</span>
+                </a>
+                <a href="#profile" class="nav-item" data-section="profile">
+                    <span class="nav-icon">👤</span>
+                    <span>Profile</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" id="logoutBtn">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <h1 id="pageTitle">Coordinator Dashboard</h1>
+                    <p class="breadcrumb">Home / Dashboard</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Loading...</span>
+                        <span class="user-email" id="userEmail"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Overview Section -->
+            <section id="overviewSection" class="content-section active">
+                <div class="welcome-card">
+                    <h2>Welcome, <span id="coordinatorName">Coordinator</span>!</h2>
+                    <p>Community: <strong id="communityName">Loading...</strong></p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <h3 id="totalStudents">0</h3>
+                            <p>Total Students</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">✓</div>
+                        <div class="stat-info">
+                            <h3 id="todayPresent">0</h3>
+                            <p>Present Today</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">✉️</div>
+                        <div class="stat-info">
+                            <h3 id="unreadMessages">0</h3>
+                            <p>Unread Messages</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📄</div>
+                        <div class="stat-info">
+                            <h3 id="totalReports">0</h3>
+                            <p>Reports Submitted</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="showSection('students')">
+                            <span>👥</span>
+                            View Students
+                        </button>
+                        <button class="action-btn" onclick="showSection('attendance')">
+                            <span>✓</span>
+                            Check Attendance
+                        </button>
+                        <button class="action-btn" onclick="showSection('reports')">
+                            <span>📄</span>
+                            Create Report
+                        </button>
+                        <button class="action-btn" onclick="showSection('messages')">
+                            <span>✉️</span>
+                            View Messages
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Today's Summary -->
+                <div class="recent-section">
+                    <h3>Today's Attendance Summary</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Index Number</th>
+                                    <th>Status</th>
+                                    <th>Time Submitted</th>
+                                </tr>
+                            </thead>
+                            <tbody id="todayAttendanceTable">
+                                <tr>
+                                    <td colspan="4" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students Section -->
+            <section id="studentsSection" class="content-section">
+                <div class="section-header">
+                    <h2>My Students</h2>
+                    <p>Students assigned to your community</p>
+                </div>
+
+                <div class="filter-bar">
+                    <input type="text" id="searchStudent" class="filter-input" placeholder="Search by name or index number...">
+                    <button class="btn btn-secondary" id="searchBtn">Search</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Index Number</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Community</th>
+                                <th>Registered Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTable">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading students...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Attendance Section -->
+            <section id="attendanceSection" class="content-section">
+                <div class="section-header">
+                    <h2>Attendance Records</h2>
+                    <p>View and monitor student attendance</p>
+                </div>
+
+                <div class="filter-bar">
+                    <input type="date" id="filterDateFrom" class="filter-input">
+                    <input type="date" id="filterDateTo" class="filter-input">
+                    <button class="btn btn-secondary" id="filterAttendanceBtn">Filter</button>
+                    <button class="btn btn-outline" id="clearAttendanceFilterBtn">Clear</button>
+                    <button class="btn btn-primary" id="exportBtn">📊 Export</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Student Name</th>
+                                <th>Index Number</th>
+                                <th>Status</th>
+                                <th>Verified</th>
+                                <th>Location</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTable">
+                            <tr>
+                                <td colspan="6" class="text-center">Loading attendance records...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Messages Section -->
+            <section id="messagesSection" class="content-section">
+                <div class="section-header">
+                    <h2>Messages</h2>
+                    <p>Messages from students and escalations to admin</p>
+                </div>
+
+                <button class="btn btn-primary" id="escalateBtn">
+                    ⚠️ Escalate to Admin
+                </button>
+
+                <!-- Escalation Form -->
+                <div id="escalationForm" class="form-card hidden">
+                    <h3>Escalate Issue to Admin</h3>
+                    <form id="sendEscalationForm">
+                        <div class="form-group">
+                            <label for="escalationMessage">Issue Description</label>
+                            <textarea id="escalationMessage" rows="5" required 
+                                placeholder="Describe the issue you want to escalate..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Send to Admin</button>
+                            <button type="button" class="btn btn-outline" id="cancelEscalationBtn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Messages List -->
+                <div class="messages-container">
+                    <h3>Received Messages from Students</h3>
+                    <div id="messagesList">
+                        <p class="text-muted">Loading messages...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reportsSection" class="content-section">
+                <div class="section-header">
+                    <h2>Reports</h2>
+                    <p>Create and manage your reports</p>
+                </div>
+
+                <button class="btn btn-primary" id="newReportBtn">
+                    📄 Create New Report
+                </button>
+
+                <!-- Create Report Form -->
+                <div id="createReportForm" class="form-card hidden">
+                    <h3>Create New Report</h3>
+                    <form id="reportForm">
+                        <div class="form-group">
+                            <label for="reportType">Report Type</label>
+                            <select id="reportType" required>
+                                <option value="">-- Select Type --</option>
+                                <option value="daily">Daily Report</option>
+                                <option value="weekly">Weekly Report</option>
+                                <option value="monthly">Monthly Report</option>
+                                <option value="incident">Incident Report</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reportContent">Report Content</label>
+                            <textarea id="reportContent" rows="8" required 
+                                placeholder="Enter your report details..."></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Submit Report</button>
+                            <button type="button" class="btn btn-outline" id="cancelReportBtn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Reports List -->
+                <div class="recent-section">
+                    <h3>My Reports</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Content Preview</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportsTable">
+                                <tr>
+                                    <td colspan="4" class="text-center">Loading reports...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Activity Section -->
+            <section id="activitySection" class="content-section">
+                <div class="section-header">
+                    <h2>Student Activity</h2>
+                    <p>Monitor student login and logout activity</p>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Index Number</th>
+                                <th>Activity</th>
+                                <th>Date & Time</th>
+                                <th>IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityTable">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading activity logs...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profileSection" class="content-section">
+                <div class="section-header">
+                    <h2>My Profile</h2>
+                    <p>View your coordinator information</p>
+                </div>
+
+                <div class="profile-grid">
+                    <div class="profile-card">
+                        <h3>Personal Information</h3>
+                        <div class="profile-info">
+                            <div class="info-row">
+                                <span class="label">Full Name:</span>
+                                <span class="value" id="profileName">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Email:</span>
+                                <span class="value" id="profileEmail">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Assigned Community:</span>
+                                <span class="value" id="profileCommunity">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">Member Since:</span>
+                                <span class="value" id="profileDate">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // Initialize dashboard
+        let coordinatorData = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const user = JSON.parse(localStorage.getItem('user'));
+            const role = localStorage.getItem('userRole');
+
+            if (!user || role !== 'coordinator') {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            coordinatorData = user;
+            loadCoordinatorData();
+            loadStatistics();
+            loadStudents();
+            loadTodayAttendance();
+        });
+
+        // Load coordinator data
+        function loadCoordinatorData() {
+            document.getElementById('userName').textContent = coordinatorData.full_name;
+            document.getElementById('userEmail').textContent = coordinatorData.email;
+            document.getElementById('coordinatorName').textContent = coordinatorData.full_name;
+            document.getElementById('communityName').textContent = coordinatorData.assigned_community;
+
+            // Profile section
+            document.getElementById('profileName').textContent = coordinatorData.full_name;
+            document.getElementById('profileEmail').textContent = coordinatorData.email;
+            document.getElementById('profileCommunity').textContent = coordinatorData.assigned_community;
+            document.getElementById('profileDate').textContent = new Date(coordinatorData.created_at).toLocaleDateString();
+        }
+
+        // Load statistics
+        async function loadStatistics() {
+            try {
+                const response = await fetch(`http://localhost:8080/DCROP/backend/api/attendance.php?action=stats&coordinator_id=${coordinatorData.id}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const stats = result.stats;
+                    document.getElementById('totalStudents').textContent = stats.total_students || 0;
+                    document.getElementById('todayPresent').textContent = stats.today_attendance || 0;
+                }
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        // Load students
+        async function loadStudents() {
+            // Implementation similar to student dashboard
+            document.getElementById('studentsTable').innerHTML = '<tr><td colspan="5" class="text-center">No students found</td></tr>';
+        }
+
+        // Load today's attendance
+        function loadTodayAttendance() {
+            document.getElementById('todayAttendanceTable').innerHTML = '<tr><td colspan="4" class="text-center">No attendance records for today</td></tr>';
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('userRole');
+                window.location.href = '../index.html';
+            }
+        });
+    </script>
+</body>
+</html>
