@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Reports - DCROP</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-content">
+                <h1>📊 All System Reports</h1>
+                <p>View and analyze reports from all coordinators</p>
+            </div>
+            <button class="btn btn-outline" onclick="goBack()">← Back to Dashboard</button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="page-content">
+            <!-- Admin Info & Stats Card -->
+            <div class="admin-stats-banner">
+                <div class="admin-info">
+                    <h3 id="adminName">Loading...</h3>
+                    <p id="adminRole">Administrator</p>
+                </div>
+                <div class="report-stats-grid">
+                    <div class="stat-card-mini">
+                        <span class="stat-icon">📄</span>
+                        <div class="stat-details">
+                            <span class="stat-number" id="totalReports">0</span>
+                            <span class="stat-label">Total Reports</span>
+                        </div>
+                    </div>
+                    <div class="stat-card-mini">
+                        <span class="stat-icon">📅</span>
+                        <div class="stat-details">
+                            <span class="stat-number" id="dailyReports">0</span>
+                            <span class="stat-label">Daily</span>
+                        </div>
+                    </div>
+                    <div class="stat-card-mini">
+                        <span class="stat-icon">📊</span>
+                        <div class="stat-details">
+                            <span class="stat-number" id="weeklyReports">0</span>
+                            <span class="stat-label">Weekly</span>
+                        </div>
+                    </div>
+                    <div class="stat-card-mini">
+                        <span class="stat-icon">📈</span>
+                        <div class="stat-details">
+                            <span class="stat-number" id="monthlyReports">0</span>
+                            <span class="stat-label">Monthly</span>
+                        </div>
+                    </div>
+                    <div class="stat-card-mini">
+                        <span class="stat-icon">⚠️</span>
+                        <div class="stat-details">
+                            <span class="stat-number" id="incidentReports">0</span>
+                            <span class="stat-label">Incidents</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter & Search Section -->
+            <div class="filter-section advanced">
+                <h3>🔍 Filter & Search Reports</h3>
+                <div class="filter-grid">
+                    <!-- Report Type Filter -->
+                    <div class="filter-group">
+                        <label for="filterType">Report Type:</label>
+                        <select id="filterType" class="filter-input">
+                            <option value="">All Types</option>
+                            <option value="daily">📅 Daily</option>
+                            <option value="weekly">📊 Weekly</option>
+                            <option value="monthly">📈 Monthly</option>
+                            <option value="incident">⚠️ Incident</option>
+                        </select>
+                    </div>
+
+                    <!-- Community Filter -->
+                    <div class="filter-group">
+                        <label for="filterCommunity">Community:</label>
+                        <select id="filterCommunity" class="filter-input">
+                            <option value="">All Communities</option>
+                        </select>
+                    </div>
+
+                    <!-- Date Range Filter -->
+                    <div class="filter-group">
+                        <label for="filterDateFrom">Date From:</label>
+                        <input type="date" id="filterDateFrom" class="filter-input">
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filterDateTo">Date To:</label>
+                        <input type="date" id="filterDateTo" class="filter-input">
+                    </div>
+
+                    <!-- Search Box -->
+                    <div class="filter-group filter-group-wide">
+                        <label for="searchBox">Search:</label>
+                        <input 
+                            type="text" 
+                            id="searchBox" 
+                            class="filter-input" 
+                            placeholder="Search by coordinator name or content..."
+                        >
+                    </div>
+
+                    <!-- Filter Actions -->
+                    <div class="filter-actions-group">
+                        <button class="btn btn-primary" id="applyFilterBtn">
+                            Apply Filters
+                        </button>
+                        <button class="btn btn-outline" id="clearFilterBtn">
+                            Clear All
+                        </button>
+                        <button class="btn btn-success" id="exportBtn">
+                            📊 Export Reports
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Table Section -->
+            <div class="reports-table-section">
+                <div class="section-header-row">
+                    <h3>📋 Reports List</h3>
+                    <div class="view-options">
+                        <button class="btn-view active" data-view="table" title="Table View">
+                            ▦
+                        </button>
+                        <button class="btn-view" data-view="card" title="Card View">
+                            ▤
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table View -->
+                <div id="tableView" class="view-container active">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Date</th>
+                                    <th>Coordinator</th>
+                                    <th>Community</th>
+                                    <th>Type</th>
+                                    <th>Content Preview</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportsTable">
+                                <tr>
+                                    <td colspan="7" class="text-center loading">
+                                        <div class="loader"></div>
+                                        Loading reports...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Card View -->
+                <div id="cardView" class="view-container">
+                    <div class="reports-grid" id="reportsGrid">
+                        <!-- Cards will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <button class="btn btn-outline btn-sm" id="prevBtn" disabled>
+                        ← Previous
+                    </button>
+                    <span class="pagination-info">
+                        Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+                        (<span id="totalRecords">0</span> reports)
+                    </span>
+                    <button class="btn btn-outline btn-sm" id="nextBtn" disabled>
+                        Next →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state hidden">
+                <div class="empty-icon">📄</div>
+                <h3>No Reports Found</h3>
+                <p>No reports match your search criteria. Try adjusting your filters.</p>
+            </div>
+
+            <!-- Report Details Modal -->
+            <div id="reportModal" class="modal hidden">
+                <div class="modal-content modal-large">
+                    <div class="modal-header">
+                        <h3>📄 Report Details</h3>
+                        <button class="btn-close" onclick="closeModal()">✕</button>
+                    </div>
+                    <div class="modal-body" id="modalBody">
+                        <!-- Report details will be inserted here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline" onclick="closeModal()">Close</button>
+                        <button class="btn btn-primary" onclick="printReport()">🖨️ Print</button>
+                        <button class="btn btn-success" onclick="exportReport()">💾 Export</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div class="analytics-section">
+                <h3>📊 Report Analytics</h3>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h4>Reports by Type</h4>
+                        <div id="reportsByType" class="chart-placeholder">
+                            <p class="text-muted">Chart visualization coming soon</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Reports by Community</h4>
+                        <div id="reportsByCommunity" class="chart-placeholder">
+                            <p class="text-muted">Chart visualization coming soon</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Monthly Trend</h4>
+                        <div id="monthlyTrend" class="chart-placeholder">
+                            <p class="text-muted">Chart visualization coming soon</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let adminData = null;
+        let allReports = [];
+        let filteredReports = [];
+        let currentPage = 1;
+        const recordsPerPage = 20;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            const user = JSON.parse(localStorage.getItem('user'));
+            const role = localStorage.getItem('userRole');
+
+            if (!user || (role !== 'admin' && role !== 'super_user')) {
+                window.location.href = '../index.html';
+                return;
+            }
+
+            adminData = user;
+            loadAdminInfo();
+            loadReports();
+            loadCommunities();
+
+            // Event listeners
+            document.getElementById('applyFilterBtn').addEventListener('click', applyFilters);
+            document.getElementById('clearFilterBtn').addEventListener('click', clearFilters);
+            document.getElementById('searchBox').addEventListener('input', searchReports);
+            document.getElementById('prevBtn').addEventListener('click', () => changePage(-1));
+            document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
+            document.getElementById('exportBtn').addEventListener('click', exportAllReports);
+
+            // View toggle
+            document.querySelectorAll('.btn-view').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    toggleView(this.dataset.view);
+                });
+            });
+        });
+
+        // Load admin information
+        function loadAdminInfo() {
+            document.getElementById('adminName').textContent = adminData.full_name;
+            document.getElementById('adminRole').textContent = localStorage.getItem('userRole') === 'super_user' ? 'Super Administrator' : 'Administrator';
+        }
+
+        // Load communities for filter
+        async function loadCommunities() {
+            const communities = [
+                'Tamale', 'Savelugu', 'Tolon', 'Kumbungu', 'Nanton',
+                'Karaga', 'Gushegu', 'Zabzugu', 'Yendi', 'Mion'
+            ];
+
+            const select = document.getElementById('filterCommunity');
+            communities.forEach(community => {
+                select.innerHTML += `<option value="${community}">${community}</option>`;
+            });
+        }
+
+        // Load all reports
+        async function loadReports() {
+            try {
+                const response = await fetch('http://localhost:8080/DCROP/backend/api/reports.php?action=all');
+                const result = await response.json();
+
+                if (result.success && result.reports.length > 0) {
+                    allReports = result.reports;
+                    filteredReports = [...allReports];
+                    
+                    updateStatistics();
+                    displayReports();
+                    document.getElementById('emptyState').classList.add('hidden');
+                } else {
+                    showEmptyState();
+                }
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                showError('Failed to load reports. Please refresh the page.');
+            }
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            document.getElementById('totalReports').textContent = allReports.length;
+            document.getElementById('dailyReports').textContent = allReports.filter(r => r.report_type === 'daily').length;
+            document.getElementById('weeklyReports').textContent = allReports.filter(r => r.report_type === 'weekly').length;
+            document.getElementById('monthlyReports').textContent = allReports.filter(r => r.report_type === 'monthly').length;
+            document.getElementById('incidentReports').textContent = allReports.filter(r => r.report_type === 'incident').length;
+        }
+
+        // Display reports (table and card view)
+        function displayReports() {
+            const totalPages = Math.ceil(filteredReports.length / recordsPerPage);
+            const start = (currentPage - 1) * recordsPerPage;
+            const end = start + recordsPerPage;
+            const pageReports = filteredReports.slice(start, end);
+
+            // Table view
+            displayTableView(pageReports, start);
+
+            // Card view
+            displayCardView(pageReports);
+
+            // Update pagination
+            updatePagination(totalPages);
+        }
+
+        // Display table view
+        function displayTableView(reports, startIndex) {
+            const tbody = document.getElementById('reportsTable');
+
+            if (reports.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No reports found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = reports.map((report, index) => {
+                const rowNum = startIndex + index + 1;
+                const date = new Date(report.created_at).toLocaleDateString();
+                const typeIcon = getReportIcon(report.report_type);
+                const preview = report.content.substring(0, 80) + '...';
+
+                return `
+                    <tr>
+                        <td>${rowNum}</td>
+                        <td>${date}</td>
+                        <td>${report.coordinator_name}</td>
+                        <td>${report.assigned_community}</td>
+                        <td><span class="report-type-badge type-${report.report_type}">${typeIcon} ${report.report_type}</span></td>
+                        <td class="preview-cell">${preview}</td>
+                        <td class="actions-cell">
+                            <button class="btn-icon" onclick="viewReport(${report.id})" title="View">
+                                👁️
+                            </button>
+                            <button class="btn-icon" onclick="downloadReport(${report.id})" title="Download">
+                                💾
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Display card view
+        function displayCardView(reports) {
+            const grid = document.getElementById('reportsGrid');
+
+            if (reports.length === 0) {
+                grid.innerHTML = '<p class="text-center text-muted">No reports found</p>';
+                return;
+            }
+
+            grid.innerHTML = reports.map(report => {
+                const date = new Date(report.created_at).toLocaleDateString();
+                const typeIcon = getReportIcon(report.report_type);
+                const preview = report.content.substring(0, 150) + '...';
+
+                return `
+                    <div class="report-card">
+                        <div class="report-card-header">
+                            <span class="report-type-badge type-${report.report_type}">
+                                ${typeIcon} ${report.report_type}
+                            </span>
+                            <span class="report-date">${date}</span>
+                        </div>
+                        <div class="report-card-body">
+                            <h4>${report.coordinator_name}</h4>
+                            <p class="community-badge">📍 ${report.assigned_community}</p>
+                            <p class="report-preview">${preview}</p>
+                        </div>
+                        <div class="report-card-footer">
+                            <button class="btn btn-sm btn-primary" onclick="viewReport(${report.id})">
+                                View Details
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="downloadReport(${report.id})">
+                                💾 Download
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update pagination
+        function updatePagination(totalPages) {
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages || 1;
+            document.getElementById('totalRecords').textContent = filteredReports.length;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        // Get report icon
+        function getReportIcon(type) {
+            const icons = {
+                'daily': '📅',
+                'weekly': '📊',
+                'monthly': '📈',
+                'incident': '⚠️'
+            };
+            return icons[type] || '📄';
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const typeFilter = document.getElementById('filterType').value;
+            const communityFilter = document.getElementById('filterCommunity').value;
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+
+            filteredReports = allReports.filter(report => {
+                let matches = true;
+
+                if (typeFilter) {
+                    matches = matches && (report.report_type === typeFilter);
+                }
+
+                if (communityFilter) {
+                    matches = matches && (report.assigned_community === communityFilter);
+                }
+
+                if (dateFrom) {
+                    matches = matches && (report.created_at >= dateFrom);
+                }
+
+                if (dateTo) {
+                    matches = matches && (report.created_at <= dateTo);
+                }
+
+                return matches;
+            });
+
+            currentPage = 1;
+            displayReports();
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterCommunity').value = '';
+            document.getElementById('filterDateFrom').value = '';
+            document.getElementById('filterDateTo').value = '';
+            document.getElementById('searchBox').value = '';
+
+            filteredReports = [...allReports];
+            currentPage = 1;
+            displayReports();
+        }
+
+        // Search reports
+        function searchReports(e) {
+            const searchTerm = e.target.value.toLowerCase();
+
+            filteredReports = allReports.filter(report => {
+                return report.coordinator_name.toLowerCase().includes(searchTerm) ||
+                       report.assigned_community.toLowerCase().includes(searchTerm) ||
+                       report.content.toLowerCase().includes(searchTerm) ||
+                       report.report_type.toLowerCase().includes(searchTerm);
+            });
+
+            currentPage = 1;
+            displayReports();
+        }
+
+        // Change page
+        function changePage(direction) {
+            currentPage += direction;
+            displayReports();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Toggle view
+        function toggleView(viewType) {
+            document.querySelectorAll('.btn-view').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-view="${viewType}"]`).classList.add('active');
+
+            document.querySelectorAll('.view-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById(viewType + 'View').classList.add('active');
+        }
+
+        // View report details
+        function viewReport(reportId) {
+            const report = allReports.find(r => r.id == reportId);
+            if (!report) return;
+
+            const typeIcon = getReportIcon(report.report_type);
+            const modalBody = document.getElementById('modalBody');
+
+            modalBody.innerHTML = `
+                <div class="report-details-full">
+                    <div class="detail-section">
+                        <h4>Report Information</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Report Type:</span>
+                                <span class="report-type-badge type-${report.report_type}">${typeIcon} ${report.report_type}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Created:</span>
+                                <span>${new Date(report.created_at).toLocaleString()}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Coordinator:</span>
+                                <span>${report.coordinator_name}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Email:</span>
+                                <span>${report.coordinator_email}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Community:</span>
+                                <span>📍 ${report.assigned_community}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="detail-section">
+                        <h4>Report Content</h4>
+                        <div class="report-content-display">
+                            <pre>${report.content}</pre>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('reportModal').classList.remove('hidden');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        // Download single report
+        function downloadReport(reportId) {
+            alert('Download report #' + reportId + '\n\nExport functionality coming soon!');
+        }
+
+        // Export all reports
+        function exportAllReports() {
+            alert('Export all reports\n\nYou will be able to export as CSV, PDF, or Excel.\n\nComing soon!');
+        }
+
+        // Print report
+        function printReport() {
+            window.print();
+        }
+
+        // Export report
+        function exportReport() {
+            alert('Export single report\n\nComing soon!');
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            document.getElementById('reportsTable').innerHTML = '';
+            document.getElementById('reportsGrid').innerHTML = '';
+            document.getElementById('emptyState').classList.remove('hidden');
+        }
+
+        // Show error
+        function showError(message) {
+            const tbody = document.getElementById('reportsTable');
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${message}</td></tr>`;
+        }
+
+        // Go back
+        function goBack() {
+            const role = localStorage.getItem('userRole');
+            const dashboard = role === 'super_user' ? 'superuser.html' : 'admin.html';
+            window.location.href = `../dashboard/${dashboard}`;
+        }
+    </script>
+</body>
+</html>
